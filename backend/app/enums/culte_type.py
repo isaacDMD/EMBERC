@@ -1,4 +1,6 @@
-class CulteTypeEnum:
+import enum
+
+class CulteTypeEnum(enum.Enum):
     """
     Tous les types de cultes .
     """

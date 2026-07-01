@@ -1,4 +1,6 @@
-class CategorieChantEnum:
+import enum
+
+class CategorieChantEnum(enum.Enum):
     """Enum pour les catégories de chants.
         A modifier plus tard pour ajouter d'autres catégories de chants si nécessaire.
     """

@@ -12,7 +12,7 @@ class Chants(Base):
     titre = Column(String(255), nullable=False)
     paroles = Column(Text)
     numero = Column(String(20), nullable=False, unique=True)
-    categorie = Column(Enum(CategorieChantEnum), nullable=False)
+    categorie = Column(Enum(CategorieChantEnum, native_enum=False), nullable=False)
     auteur = Column(String(255), nullable=True)
     url_audio = Column(String(255), nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())

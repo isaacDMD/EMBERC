@@ -1,4 +1,6 @@
-class MediaTypeEnum:
+import enum
+
+class MediaTypeEnum(enum.Enum):
     """
     Enumeration pour les differents types de medias 
     """

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Date, Enum, ForeignKey, Integer, String,TIMESTAMP, Boolean, Text
 from sqlalchemy.sql import func
 from app.database import Base
-from app.enums.annoce_type import AnnonceTypeEnum
+from app.enums.annoce_type import AnnonceType
 
 class Annonce(Base):
     __tablename__ = "annonces"
@@ -9,7 +9,7 @@ class Annonce(Base):
     id = Column(Integer, primary_key=True, index=True)
     titre = Column(String(255), nullable=False)
     contenu = Column(Text, nullable=False)
-    type_annonce = Column (Enum(AnnonceTypeEnum), nullable=False, default=AnnonceTypeEnum.FUNERAIRE)
+    type_annonce = Column(Enum(AnnonceType, native_enum=False), default=AnnonceType.REUNION)
     date_debut = Column(Date, nullable=False)
     date_fin = Column(Date, nullable=False)
     paroisse_id = Column(Integer, ForeignKey("paroisses.id"), nullable=False)

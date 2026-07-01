@@ -1,0 +1,10 @@
+import app.models.annonces
+import app.models.chant
+import app.models.evenement
+import app.models.favoris
+import app.models.lecture_biblique
+import app.models.media
+import app.models.paroisse
+import app.models.programme_culte
+import app.models.programme_chants
+import app.models.user

@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, Integer, String, Text
+from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, Text
 from sqlalchemy.sql import func
 from app.database import Base
 
@@ -14,6 +14,6 @@ class Paroisse(Base):
     pasteur_nom = Column(String(100))
     description = Column(Text)
     logo_url = Column(String(255))
-    actif = Column(bool, default=True)
+    actif = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

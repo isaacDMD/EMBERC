@@ -9,7 +9,7 @@ class ProgrammeCulte(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     titre = Column(String(255), nullable=False)
-    type_culte = Column(Enum(CulteTypeEnum), nullable=False, default=CulteTypeEnum.DIMANCHE)
+    type_culte = Column(Enum(CulteTypeEnum, native_enum=False), nullable=False, default=CulteTypeEnum.DIMANCHE)
     predicateur = Column(String(255), nullable=True)
     date_heure = Column(TIMESTAMP, nullable=False)
     paroisse_id = Column(Integer, ForeignKey("paroisses.id"), nullable=False)

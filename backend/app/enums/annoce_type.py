@@ -1,4 +1,6 @@
-class AnnonceTypeEnum:
+import enum
+
+class AnnonceType(enum.Enum):
     """
     Enumeration pour les differents types d'annonces 
     """

@@ -1,4 +1,6 @@
-class FavorisTypeEnum:
+import enum
+
+class FavorisTypeEnum(enum.Enum):
     """
     Enumeration pour les differents types de favoris 
     """

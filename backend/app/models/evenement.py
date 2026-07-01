@@ -15,6 +15,6 @@ class Evenement(Base):
     lieu = Column(String(255), nullable=True)
     image_url = Column(String(255), nullable=True)
     publie = Column(Boolean, default=False)
-    type_evenement = Column(Enum(EvenementTypeEnum), nullable=True)
+    type_evenement = Column(Enum(EvenementTypeEnum, native_enum=False), nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

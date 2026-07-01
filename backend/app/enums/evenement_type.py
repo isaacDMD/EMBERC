@@ -1,4 +1,6 @@
-class EvenementTypeEnum:
+import enum
+
+class EvenementTypeEnum(enum.Enum):
     """
     Enumeration pour les differents types d'evenements 
     """

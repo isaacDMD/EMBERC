@@ -11,7 +11,7 @@ class LectureBiblique(Base):
     date_lecture = Column(TIMESTAMP, nullable=False)
     type_evenement = Column(String(100))
     programme_id = Column(Integer, ForeignKey("programme_culte.id"), nullable=False)
-    lecteur_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    lecteur_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     paroisse_id = Column(Integer, ForeignKey("paroisses.id"), nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

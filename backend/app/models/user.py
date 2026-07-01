@@ -12,7 +12,7 @@ class User(Base):
     prenom = Column(String(150), nullable=False)
     email = Column(String(150), unique=True, nullable=False)
     mot_de_passe = Column(String(255), nullable=False)
-    role = Column(Enum(RoleEnum), nullable=False, default=RoleEnum.fidele)
+    role = Column(Enum(RoleEnum, native_enum=False), nullable=False, default=RoleEnum.fidele)
     paroisse_id = Column(Integer, ForeignKey("paroisses.id"), nullable=True)
     locale = Column(String(10),default="fr")
     created_at = Column(TIMESTAMP, server_default=func.now())
