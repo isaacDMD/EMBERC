@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Date, Enum, ForeignKey, Integer, String,TIMESTAMP, Boolean, Text
 from sqlalchemy.sql import func
 from app.database import Base
-from app.enums.annoce_type import AnnonceType
+from app.enums.annonce_type import AnnonceType
 
 class Annonce(Base):
     __tablename__ = "annonces"
