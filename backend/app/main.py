@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.dependencies import get_db
+from app.routers import chants
 
 app = FastAPI(
     title="EMBERC API",
@@ -30,3 +31,6 @@ def health():
 def test_db(db: Session = Depends(get_db)):
     result = db.execute(text("SELECT version()")).fetchone()
     return {"database": "connectée", "version": result[0]}
+
+
+app.include_router(chants.router)
