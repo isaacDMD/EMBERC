@@ -3,7 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.dependencies import get_db
-from app.routers import chants, paroisses, programmes, programme_chants, lecture_lecteurs, lectures, auth, users, annonces, evenemnts
+from app.routers import (chants, 
+paroisses, 
+ programmes, 
+ programme_chants, 
+ lecture_lecteurs,
+ lectures, 
+ auth, 
+ users, 
+ annonces, 
+ evenemnts, medias)
 
 app = FastAPI(
     title="EMBERC API",
@@ -33,13 +42,14 @@ def test_db(db: Session = Depends(get_db)):
     return {"database": "connectée", "version": result[0]}
 
 
+app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(chants.router)
+app.include_router(medias.router)
+app.include_router(annonces.router)
 app.include_router(lectures.router)
+app.include_router(evenemnts.router)
 app.include_router(paroisses.router)
 app.include_router(programmes.router)
 app.include_router(lecture_lecteurs.router)
 app.include_router(programme_chants.router)
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(annonces.router)
-app.include_router(evenemnts.router)
