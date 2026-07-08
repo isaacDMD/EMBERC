@@ -1,7 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from app.auth.permissions import require_roles
+from app.auth.permissions import require_roles, verify_paroisse_access
 from app.enums.roles import RoleEnum
 from app.dependencies import get_db
 from app.schemas.programmes import (
@@ -39,6 +39,7 @@ def creer_programme(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
+    verify_paroisse_access(current_user, payload.paroisse_id)
     try:
         return programmes_service.create_programme(db, payload)
     except ValueError:
@@ -52,14 +53,15 @@ def modifier_programme(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
+    existant = programmes_service.get_programme_by_id(db, id)
+    if not existant:
+        raise HTTPException(status_code=404, detail="Le programme que vous essayez de modifier n'existe pas")
+    verify_paroisse_access(current_user, existant.paroisse_id)
+
     try:
-        programme_updated = programmes_service.update_programme(db, id, payload)
+        return programmes_service.update_programme(db, id, payload)
     except ValueError:
         raise HTTPException(status_code=400, detail="Paroisse invalide")
-
-    if not programme_updated:
-        raise HTTPException(status_code=404, detail="Le programme que vous essayez de modifier n'existe pas")
-    return programme_updated
 
 
 @router.delete("/{id}", status_code=204)
@@ -68,6 +70,9 @@ def supprimer_programme(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
-    deleted = programmes_service.delete_programme(db, id)
-    if not deleted:
+    existant = programmes_service.get_programme_by_id(db, id)
+    if not existant:
         raise HTTPException(status_code=404, detail="Programme non trouvé")
+    verify_paroisse_access(current_user, existant.paroisse_id)
+
+    programmes_service.delete_programme(db, id)

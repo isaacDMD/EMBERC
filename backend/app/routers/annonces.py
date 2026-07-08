@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.schemas.annonces import AnnonceCreate, AnnonceOut, AnnonceUpdate
 from app.services import annonces_service
-from app.auth.permissions import require_roles, get_current_user
+from app.auth.permissions import require_roles, get_current_user, verify_paroisse_access
 from app.enums.roles import RoleEnum
 from app.models.user import User
 
@@ -40,6 +40,7 @@ def creer_annonce(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
+    verify_paroisse_access(current_user, payload.paroisse_id)
     try:
         return annonces_service.create_annonce(db, payload, auteur_id=current_user.id)
     except ValueError:
@@ -53,14 +54,15 @@ def modifier_annonce(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
+    existant = annonces_service.get_annonce_by_id(db, id)
+    if not existant:
+        raise HTTPException(status_code=404, detail="Annonce non trouvée")
+    verify_paroisse_access(current_user, existant.paroisse_id)
+
     try:
-        annonce_updated = annonces_service.update_annonce(db, id, payload)
+        return annonces_service.update_annonce(db, id, payload)
     except ValueError:
         raise HTTPException(status_code=400, detail="Paroisse invalide")
-
-    if not annonce_updated:
-        raise HTTPException(status_code=404, detail="Annonce non trouvée")
-    return annonce_updated
 
 
 @router.delete("/{id}", status_code=204)
@@ -69,6 +71,9 @@ def supprimer_annonce(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
-    deleted = annonces_service.delete_annonce(db, id)
-    if not deleted:
+    existant = annonces_service.get_annonce_by_id(db, id)
+    if not existant:
         raise HTTPException(status_code=404, detail="Annonce non trouvée")
+    verify_paroisse_access(current_user, existant.paroisse_id)
+
+    annonces_service.delete_annonce(db, id)

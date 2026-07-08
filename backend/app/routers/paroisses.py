@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from app.auth.permissions import require_roles
+from app.auth.permissions import require_roles, verify_paroisse_access
 from app.enums.roles import RoleEnum
 from app.dependencies import get_db
 from app.schemas.paroisses import ParoisseCreate, ParoisseUpdate, ParoisseOut
@@ -43,6 +43,8 @@ def modifier_paroisse(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
+    verify_paroisse_access(current_user, paroisse_id)
+
     paroisse = paroisses_service.get_paroisse_by_id(db, paroisse_id)
     if not paroisse:
         raise HTTPException(status_code=404, detail="Paroisse introuvable")

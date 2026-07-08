@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.schemas.evenements import EvenementCreate, EvenementOut, EvenementUpdate
 from app.services import evenements_service
-from app.auth.permissions import require_roles
+from app.auth.permissions import require_roles, verify_paroisse_access
 from app.enums.roles import RoleEnum
 
 router = APIRouter(prefix="/api/v1/evenements", tags=["evenements"])
@@ -39,6 +39,7 @@ def creer_evenement(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
+    verify_paroisse_access(current_user, payload.paroisse_id)
     try:
         return evenements_service.create_evenement(db, payload)
     except ValueError:
@@ -52,14 +53,15 @@ def modifier_evenement(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
+    existant = evenements_service.get_evenement_by_id(db, id)
+    if not existant:
+        raise HTTPException(status_code=404, detail="Événement non trouvé")
+    verify_paroisse_access(current_user, existant.paroisse_id)
+
     try:
-        evenement_updated = evenements_service.update_evenement(db, id, payload)
+        return evenements_service.update_evenement(db, id, payload)
     except ValueError:
         raise HTTPException(status_code=400, detail="Paroisse invalide")
-
-    if not evenement_updated:
-        raise HTTPException(status_code=404, detail="Événement non trouvé")
-    return evenement_updated
 
 
 @router.delete("/{id}", status_code=204)
@@ -68,6 +70,9 @@ def supprimer_evenement(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
-    deleted = evenements_service.delete_evenement(db, id)
-    if not deleted:
+    existant = evenements_service.get_evenement_by_id(db, id)
+    if not existant:
         raise HTTPException(status_code=404, detail="Événement non trouvé")
+    verify_paroisse_access(current_user, existant.paroisse_id)
+
+    evenements_service.delete_evenement(db, id)

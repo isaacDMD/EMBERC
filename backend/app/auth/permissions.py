@@ -45,3 +45,19 @@ def require_roles(*roles: RoleEnum):
         return current_user
 
     return dependency
+
+
+def verify_paroisse_access(current_user: User, paroisse_id: int) -> None:
+    """
+    Vérifie que l'utilisateur a le droit de faire ses bails sur cette paroisse.
+    Un super_admin passe toujours. Les autres doivent être rattachés
+    à cette paroisse précise.
+    """
+    if current_user.role == RoleEnum.super_admin:
+        return
+
+    if current_user.paroisse_id is None or current_user.paroisse_id != paroisse_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Vous n'avez pas accès à cette paroisse",
+        )
