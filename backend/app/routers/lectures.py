@@ -1,7 +1,8 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-
+from app.enums.roles import RoleEnum
+from app.auth.permissions import require_roles
 from app.dependencies import get_db
 from app.schemas.lectures import (
     LectureBibliqueCreate,
@@ -33,7 +34,11 @@ def detail_lecture(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=LectureBibliqueOut, status_code=201)
-def creer_lecture(payload: LectureBibliqueCreate, db: Session = Depends(get_db)):
+def creer_lecture(
+    payload: LectureBibliqueCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_lecteurs)),
+):
     try:
         return lectures_service.create_lecture(db, payload)
     except ValueError:
@@ -42,7 +47,10 @@ def creer_lecture(payload: LectureBibliqueCreate, db: Session = Depends(get_db))
 
 @router.put("/{id}", response_model=LectureBibliqueOut)
 def modifier_lecture(
-    id: int, payload: LectureBibliqueUpdate, db: Session = Depends(get_db)
+    id: int,
+    payload: LectureBibliqueUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_lecteurs)),
 ):
     try:
         lecture_updated = lectures_service.update_lecture(db, id, payload)
@@ -55,7 +63,11 @@ def modifier_lecture(
 
 
 @router.delete("/{id}", status_code=204)
-def supprimer_lecture(id: int, db: Session = Depends(get_db)):
+def supprimer_lecture(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_lecteurs)),
+):
     deleted = lectures_service.delete_lecture(db, id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Lecture non trouvée")

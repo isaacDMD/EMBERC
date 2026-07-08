@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.schemas.chants import ChantCreate, ChantOut, ChantUpdate
 from app.services import chants_service
+from app.auth.permissions import require_roles
+from app.enums.roles import RoleEnum
 
 router = APIRouter(prefix="/api/v1/chants", tags=["chants"])
 
@@ -25,7 +27,11 @@ def get_chant_by_id(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=ChantOut, status_code=201)
-def create_chant(payload: ChantCreate, db: Session = Depends(get_db)):
+def create_chant(
+    payload: ChantCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
+):
     try:
         return chants_service.create_chant(db, payload)
     except ValueError:
@@ -33,7 +39,12 @@ def create_chant(payload: ChantCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", response_model=ChantOut)
-def update_chant(id: int, payload: ChantUpdate, db: Session = Depends(get_db)):
+def update_chant(
+    id: int,
+    payload: ChantUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
+):
     try:
         chant_updated = chants_service.update_chant(db, id, payload)
     except ValueError:

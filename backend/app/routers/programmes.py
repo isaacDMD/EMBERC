@@ -1,7 +1,8 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-
+from app.auth.permissions import require_roles
+from app.enums.roles import RoleEnum
 from app.dependencies import get_db
 from app.schemas.programmes import (
     ProgrammeCulteCreate,
@@ -33,7 +34,11 @@ def detail_programme(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=ProgrammeCulteOut, status_code=201)
-def creer_programme(payload: ProgrammeCulteCreate, db: Session = Depends(get_db)):
+def creer_programme(
+    payload: ProgrammeCulteCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
+):
     try:
         return programmes_service.create_programme(db, payload)
     except ValueError:
@@ -42,7 +47,10 @@ def creer_programme(payload: ProgrammeCulteCreate, db: Session = Depends(get_db)
 
 @router.put("/{id}", response_model=ProgrammeCulteOut)
 def modifier_programme(
-    id: int, payload: ProgrammeCulteUpdate, db: Session = Depends(get_db)
+    id: int,
+    payload: ProgrammeCulteUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
 ):
     try:
         programme_updated = programmes_service.update_programme(db, id, payload)
@@ -50,15 +58,16 @@ def modifier_programme(
         raise HTTPException(status_code=400, detail="Paroisse invalide")
 
     if not programme_updated:
-        raise HTTPException(
-            status_code=404,
-            detail="Le programme que vous essayez de modifier n'existe pas",
-        )
+        raise HTTPException(status_code=404, detail="Le programme que vous essayez de modifier n'existe pas")
     return programme_updated
 
 
 @router.delete("/{id}", status_code=204)
-def supprimer_programme(id: int, db: Session = Depends(get_db)):
+def supprimer_programme(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
+):
     deleted = programmes_service.delete_programme(db, id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Programme non trouvé")
