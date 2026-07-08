@@ -14,6 +14,6 @@ class Chants(Base):
     numero = Column(String(20), nullable=False, unique=True)
     categorie = Column(Enum(CategorieChantEnum, native_enum=False), nullable=False)
     auteur = Column(String(255), nullable=True)
-    url_audio = Column(String(255), nullable=True)
+    fichier_audio_url = Column(String(255), nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

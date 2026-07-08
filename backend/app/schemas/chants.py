@@ -10,7 +10,7 @@ class ChantBase(BaseModel):
     paroles: Optional[str] = None
     categorie: Optional[CategorieChantEnum] = CategorieChantEnum.CHANT
     auteur: Optional[str] = None
-    url_audio: Optional[str] = None
+    fichier_audio_url: Optional[str] = None
 
 
 class ChantCreate(ChantBase):
@@ -23,7 +23,7 @@ class ChantUpdate(BaseModel):
     paroles: Optional[str] = None
     categorie: Optional[CategorieChantEnum] = None
     auteur: Optional[str] = None
-    url_audio: Optional[str] = None
+    fichier_audio_url: Optional[str] = None
 
 
 class ChantOut(ChantBase):
