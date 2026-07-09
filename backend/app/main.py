@@ -9,7 +9,7 @@ paroisses,
  programme_chants, 
  lecture_lecteurs,
  lectures, 
- auth, 
+ auth, favoris,
  users, 
  annonces, 
  evenemnts, medias)
@@ -41,11 +41,11 @@ def test_db(db: Session = Depends(get_db)):
     result = db.execute(text("SELECT version()")).fetchone()
     return {"database": "connectée", "version": result[0]}
 
-
 app.include_router(auth.router)
 app.include_router(users.router)
-app.include_router(chants.router)
 app.include_router(medias.router)
+app.include_router(chants.router)
+app.include_router(favoris.router)
 app.include_router(annonces.router)
 app.include_router(lectures.router)
 app.include_router(evenemnts.router)
