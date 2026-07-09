@@ -9,3 +9,4 @@ import app.models.programme_culte
 import app.models.programme_chants
 import app.models.user
 import app.models.lecture_lecteurs
+import app.models.actualites
