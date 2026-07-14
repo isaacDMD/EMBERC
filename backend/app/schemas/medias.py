@@ -39,15 +39,15 @@ class MediaOut(MediaBase):
 
 
 class MediaUploadRequest(BaseModel):
-    nom_ficher : str
+    nom_fichier : str
     content_type : str
     type_media : MediaTypeEnum
     paroisse_id : int
 
 class MediaUploadResponse(BaseModel):
-    upload_url = str
+    upload_url : str
     key: str
-    expires_in = int
+    expires_in : int
 
 class MediaConfirmUploadRequest(BaseModel):
     key: str
