@@ -10,7 +10,7 @@ paroisses,
  lecture_lecteurs,
  lectures, 
  auth, favoris,
- users, 
+ users,actualites, 
  annonces, 
  evenemnts, medias)
 
@@ -50,6 +50,7 @@ app.include_router(annonces.router)
 app.include_router(lectures.router)
 app.include_router(evenemnts.router)
 app.include_router(paroisses.router)
+app.include_router(actualites.router)
 app.include_router(programmes.router)
 app.include_router(lecture_lecteurs.router)
 app.include_router(programme_chants.router) 
