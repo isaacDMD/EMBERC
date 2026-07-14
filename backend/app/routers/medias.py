@@ -3,14 +3,52 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
-from app.schemas.medias import MediaCreate, MediaOut, MediaUpdate
-from app.services import medias_service
+from app.schemas.medias import (
+    MediaCreate, MediaOut, 
+    MediaUpdate, MediaUploadRequest, 
+    MediaConfirmUploadRequest, MediaUploadResponse, 
+    MediaConfirmUploadResponse)
+from app.services import medias_service, storage
 from app.auth.permissions import require_roles,verify_paroisse_access
 from app.enums.roles import RoleEnum
 from app.enums.medias_type import MediaTypeEnum
 
 router = APIRouter(prefix="/api/v1/medias", tags=["medias"])
 
+@router.post("/upload-url", response_model=MediaUploadResponse)
+def demander_url_upload(
+    payload: MediaUploadRequest,
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
+):
+    verify_paroisse_access(current_user, payload.paroisse_id)
+
+    categorie = payload.type_media.value
+    autorises = storage.ALLOWED_CONTENT_TYPES.get(categorie, set())
+    if payload.content_type not in autorises:
+        raise HTTPException(status_code=400, detail="Type de fichier non autorisé pour cette catégorie")
+
+    key = storage.generate_object_key(f"medias/{categorie}", payload.nom_fichier)
+    upload_url = storage.generate_presigned_upload_url(key, payload.content_type, expires_in=1200)
+
+    return MediaUploadResponse(upload_url=upload_url, key=key, expires_in=1200)
+
+@router.post("/confirm-upload", response_model=MediaConfirmUploadResponse)
+def confirmer_upload(
+    payload: MediaConfirmUploadRequest,
+    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse)),
+):
+    taille = storage.get_object_size(payload.key)
+    if taille is None:
+        raise HTTPException(status_code=400, detail="Fichier non trouvé — l'upload a-t-il abouti ?")
+
+    categorie = payload.type_media.value
+    limite = storage.MAX_SIZE_BYTES.get(categorie)
+    if limite and taille > limite:
+        storage.delete_object(payload.key)
+        raise HTTPException(status_code=400, detail=f"Fichier trop volumineux (max {limite // (1024*1024)} Mo)")
+
+    url_finale = storage.build_public_url(payload.key)
+    return MediaConfirmUploadResponse(url_media=url_finale, taille_octets=taille)
 
 @router.get("", response_model=list[MediaOut])
 def liste_medias(

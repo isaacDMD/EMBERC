@@ -36,3 +36,24 @@ class MediaOut(MediaBase):
     publie: bool
     created_at: datetime
     updated_at: datetime
+
+
+class MediaUploadRequest(BaseModel):
+    nom_ficher : str
+    content_type : str
+    type_media : MediaTypeEnum
+    paroisse_id : int
+
+class MediaUploadResponse(BaseModel):
+    upload_url = str
+    key: str
+    expires_in = int
+
+class MediaConfirmUploadRequest(BaseModel):
+    key: str
+    type_media: MediaTypeEnum
+
+
+class MediaConfirmUploadResponse(BaseModel):
+    url_media: str
+    taille_octets: int
