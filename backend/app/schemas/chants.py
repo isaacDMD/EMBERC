@@ -34,7 +34,7 @@ class ChantOut(ChantBase):
     updated_at: datetime
 
 class ChantUploadRequest(BaseModel):
-    nom_ficher : str
+    nom_fichier : str
     content_type:str
 
 class ChantUploadResponse(BaseModel):
