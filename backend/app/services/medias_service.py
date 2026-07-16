@@ -6,7 +6,20 @@ from sqlalchemy.exc import IntegrityError
 from app.models.media import Medias
 from app.schemas.medias import MediaCreate, MediaUpdate
 from app.enums.medias_type import MediaTypeEnum
+from app.services import storage
 
+
+def _supprimer_fichier_r2_si_present(url_media: str) -> None:
+    """
+    Best-effort : tente de supprimer l'objet R2 correspondant à cette URL.
+    Ne lève jamais d'exception — un échec de nettoyage ne doit pas
+    faire échouer la requête utilisateur (DELETE/PUT déjà commité en base).
+    """
+    try:
+        key = storage.extract_key_from_url(url_media)
+        storage.delete_object(key)
+    except Exception as e:
+        print(f"[storage] Nettoyage R2 échoué pour '{url_media}': {e}")
 
 def create_media(db: Session, payload: MediaCreate) -> Medias:
     media = Medias(**payload.model_dump())
@@ -71,6 +84,11 @@ def delete_media(db: Session, media_id: int) -> bool:
     media = get_media_by_id(db, media_id)
     if not media:
         return False
+    
+    url_a_supprimer = media.url_media
+
     db.delete(media)
     db.commit()
+
+    _supprimer_fichier_r2_si_present(url_a_supprimer)
     return True
