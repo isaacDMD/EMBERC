@@ -32,3 +32,20 @@ class ChantOut(ChantBase):
     id: int
     created_at: datetime
     updated_at: datetime
+
+class ChantUploadRequest(BaseModel):
+    nom_ficher : str
+    content_type:str
+
+class ChantUploadResponse(BaseModel):
+    upload_url: str
+    key: str
+    expires_in: int
+
+class ChantConfirmUploadRequest(BaseModel):
+    key: str
+
+
+class ChantConfirmUploadResponse(BaseModel):
+    fichier_audio_url: str
+    taille_octets: int

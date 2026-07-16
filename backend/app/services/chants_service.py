@@ -3,6 +3,17 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.chant import Chants
 from app.schemas.chants import ChantCreate, ChantUpdate
+from app.services import storage
+
+
+def _supprimer_fichier_r2_si_present(url: str) -> None:
+    if not url:
+        return
+    try:
+        key = storage.extract_key_from_url(url)
+        storage.delete_object(key)
+    except Exception as e:
+        print(f"[storage] Nettoyage R2 échoué pour '{url}': {e}")
 
 
 def create_chant(db: Session, payload: ChantCreate) -> Chants:
@@ -33,6 +44,9 @@ def update_chant(db: Session, chant_id: int, payload: ChantUpdate) -> Chants | N
         return None
 
     update_data = payload.model_dump(exclude_unset=True)
+    ancienne_url = chant.fichier_audio_url
+    nouvelle_url = update_data.get("fichier_audio_url")
+
     for field, value in update_data.items():
         setattr(chant, field, value)
 
@@ -42,4 +56,8 @@ def update_chant(db: Session, chant_id: int, payload: ChantUpdate) -> Chants | N
         db.rollback()
         raise ValueError("numero_deja_existant")
     db.refresh(chant)
+
+    if nouvelle_url and nouvelle_url != ancienne_url:
+        _supprimer_fichier_r2_si_present(ancienne_url)
+
     return chant
