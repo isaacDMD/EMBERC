@@ -19,3 +19,4 @@ postgres_data/
 .vscode/
 .idea/
 /backend/tests
+reset_password.py
