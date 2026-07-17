@@ -42,3 +42,4 @@ def retirer_favori(
     removed = favoris_service.remove_favori(db, current_user.id, id)
     if not removed:
         raise HTTPException(status_code=404, detail="Favori non trouvé")
+    
