@@ -38,6 +38,7 @@
         <NuxtLink to="/evenements" @click="menuOuvert = false">Événements</NuxtLink>
         <NuxtLink to="/medias" @click="menuOuvert = false">Médias</NuxtLink>
         <NuxtLink to="/actualites" @click="menuOuvert = false">Actualités</NuxtLink>
+        <NuxtLink v-if="estAdmin" to="/admin" class="hover:text-primary font-medium">Administration</NuxtLink>
         <template v-if="auth.estConnecte">
           <span class="text-muted">{{ auth.user?.prenom }}</span>
           <button class="text-left text-primary font-medium" @click="auth.logout()">Déconnexion</button>
@@ -58,4 +59,7 @@ import { useAuthStore } from '../../stores/auth';
 
 const auth = useAuthStore()
 const menuOuvert = ref(false)
+const estAdmin = computed(() =>
+  ['super_admin', 'admin_paroisse', 'resp_musical', 'resp_lecteurs'].includes(auth.role ?? '')
+)
 </script>
