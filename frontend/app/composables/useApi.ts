@@ -1,5 +1,5 @@
 import { useRuntimeConfig } from "nuxt/kit"
-import { useAuthStore } from "../stores/auth"
+import { useAuthStore } from "../../stores/auth"
 
 export function useApi() {
   const { public: { apiBase } } = useRuntimeConfig()
@@ -28,3 +28,4 @@ export function useApi() {
 
   return { request }
 }
+

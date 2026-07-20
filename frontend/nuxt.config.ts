@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/google-fonts'],
-    googleFonts: {
+  googleFonts: {
     families: {
       Fraunces: [500, 600, 700],
       Inter: [400, 500, 600, 700],
@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000/api/v1',
+      apiBase: 'http://localhost:8000/api/v1',
     },
   },
   app: {
