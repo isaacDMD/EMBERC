@@ -1,4 +1,3 @@
-import { useRuntimeConfig } from "nuxt/kit"
 import { useAuthStore } from "../../stores/auth"
 
 export function useApi() {

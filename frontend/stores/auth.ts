@@ -1,5 +1,3 @@
-import { useCookie, navigateTo } from 'nuxt/app'
-import { useRuntimeConfig } from 'nuxt/kit'
 import { defineStore } from 'pinia'
 
 interface Utilisateur {

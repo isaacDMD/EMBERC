@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { navigateTo } from 'nuxt/app'
 import { ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '../../stores/auth'
 
 definePageMeta({ layout: 'connexion', middleware: 'invite' })
 

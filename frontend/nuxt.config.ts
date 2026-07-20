@@ -1,3 +1,5 @@
+import { defineNuxtConfig } from "nuxt/config";
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
@@ -19,5 +21,8 @@ export default defineNuxtConfig({
       title: 'EMBERC',
       htmlAttrs: { lang: 'fr' },
     },
+  },
+  imports: {
+    dirs: ['stores'],
   },
 })
