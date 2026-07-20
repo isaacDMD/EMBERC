@@ -22,7 +22,10 @@
 <script setup lang="ts">
 import { useAuthStore } from '~~/stores/auth';
 
-definePageMeta({ middleware: 'admin' })
+definePageMeta({
+  middleware: 'admin',
+  rolesAutorises: ['super_admin', 'admin_paroisse', 'resp_musical'],
+})
 
 const auth = useAuthStore()
 
