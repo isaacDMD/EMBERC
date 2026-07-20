@@ -10,17 +10,23 @@
     <template v-else-if="programme">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <p class="section-label mb-2">Administration</p>
-          <h1 class="font-display text-3xl font-semibold">{{ programme.titre }}</h1>
+            <p class="section-label mb-2">Administration</p>
+            <h1 class="font-display text-3xl font-semibold">{{ programme.titre }}</h1>
+            <p class="text-sm text-muted mt-1">{{ formaterDateHeure(programme.date_heure) }}</p>
         </div>
         <button
-          class="text-xs px-3 py-1.5 rounded-full transition"
-          :class="programme.publie ? 'bg-green-100 text-green-800' : 'bg-ink/5 text-muted hover:bg-ink/10'"
-          @click="basculerPublication"
+            v-if="peutModifier"
+            class="text-xs px-3 py-1.5 rounded-full transition"
+            :class="programme.publie ? 'bg-green-100 text-green-800' : 'bg-ink/5 text-muted hover:bg-ink/10'"
+            @click="basculerPublication"
         >
-          {{ programme.publie ? 'Publié — dépublier' : 'Brouillon — publier' }}
+            {{ programme.publie ? 'Publié — dépublier' : 'Brouillon — publier' }}
         </button>
-      </div>
+        </div>
+
+        <form v-if="peutModifier" class="space-y-5 mb-10" @submit.prevent="soumettre">
+        <!-- ... tous les champs existants, inchangés ... -->
+        </form>
 
       <form class="space-y-5 mb-10" @submit.prevent="soumettre">
         <div>
@@ -114,10 +120,20 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '~~/stores/auth'
+
 definePageMeta({
   middleware: 'admin',
-  rolesAutorises: ['super_admin', 'admin_paroisse'],
+  rolesAutorises: ['super_admin', 'admin_paroisse', 'resp_musical'],
 })
+const auth = useAuthStore()
+const peutModifier = computed(() => ['super_admin', 'admin_paroisse'].includes(auth.role ?? ''))
+
+function formaterDateHeure(iso: string) {
+  return new Date(iso).toLocaleString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit',
+  })
+}
 
 interface ProgrammeCulte {
   id: number
