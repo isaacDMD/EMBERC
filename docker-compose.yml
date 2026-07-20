@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    container_name: emberc_db
+    environment:
+      POSTGRES_DB: emberc_db
+      POSTGRES_USER: emberc_user
+      POSTGRES_PASSWORD: emberc_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  db_test:
+    image: postgres:16
+    container_name: emberc_db_test
+    environment:
+      POSTGRES_DB: emberc_test_db
+      POSTGRES_USER: emberc_test
+      POSTGRES_PASSWORD: emberc_test_pass
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
