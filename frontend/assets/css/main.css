@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-bg text-ink font-sans antialiased;
+}
+
+.section-label {
+  @apply text-xs font-semibold tracking-[0.15em] uppercase text-muted;
+}
+
+.divider {
+  @apply border-t border-ink/10;
+}
