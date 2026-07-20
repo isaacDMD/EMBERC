@@ -21,6 +21,8 @@
           <NuxtLink to="/chants" class="hover:text-primary">Chants</NuxtLink>
           <NuxtLink to="/annonces" class="hover:text-primary">Annonces</NuxtLink>
           <NuxtLink to="/evenements" class="hover:text-primary">Événements</NuxtLink>
+          <NuxtLink to="/medias" class="hover:text-primary">Médias</NuxtLink>
+          <NuxtLink to="/actualites" class="hover:text-primary">Actualités</NuxtLink>
           <template v-if="auth.estConnecte">
             <span class="text-muted">{{ auth.user?.prenom }}</span>
             <button class="text-primary font-medium" @click="auth.logout()">Déconnexion</button>
@@ -34,6 +36,8 @@
         <NuxtLink to="/chants" @click="menuOuvert = false">Chants</NuxtLink>
         <NuxtLink to="/annonces" @click="menuOuvert = false">Annonces</NuxtLink>
         <NuxtLink to="/evenements" @click="menuOuvert = false">Événements</NuxtLink>
+        <NuxtLink to="/medias" @click="menuOuvert = false">Médias</NuxtLink>
+        <NuxtLink to="/actualites" @click="menuOuvert = false">Actualités</NuxtLink>
         <template v-if="auth.estConnecte">
           <span class="text-muted">{{ auth.user?.prenom }}</span>
           <button class="text-left text-primary font-medium" @click="auth.logout()">Déconnexion</button>
