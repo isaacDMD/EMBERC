@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.enums.roles import RoleEnum
-from app.auth.permissions import require_roles
+from app.auth.permissions import require_roles, verify_paroisse_access
 from app.dependencies import get_db
 from app.schemas.programme_chants import (
     ChantDansProgramme,
@@ -9,6 +9,7 @@ from app.schemas.programme_chants import (
     ProgrammeChantUpdate,
 )
 from app.services import programme_chants_service, programmes_service
+from app.models.user import User
 
 router = APIRouter(prefix="/api/v1/programmes", tags=["programme_chants"])
 
@@ -25,10 +26,13 @@ def ajouter_chant_au_programme(
     programme_id: int,
     payload: ProgrammeChantCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
+    current_user: User = Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
 ):
-    if not programmes_service.get_programme_by_id(db, programme_id):
+    programme = programmes_service.get_programme_by_id(db, programme_id)
+    if not programme:
         raise HTTPException(status_code=404, detail="Programme non trouvé")
+    verify_paroisse_access(current_user, programme.paroisse_id)
+
     try:
         programme_chants_service.add_chant_to_programme(db, programme_id, payload)
     except ValueError:
@@ -42,8 +46,13 @@ def modifier_ordre_chant(
     chant_id: int,
     payload: ProgrammeChantUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
+    current_user: User = Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
 ):
+    programme = programmes_service.get_programme_by_id(db, programme_id)
+    if not programme:
+        raise HTTPException(status_code=404, detail="Programme non trouvé")
+    verify_paroisse_access(current_user, programme.paroisse_id)
+
     updated = programme_chants_service.update_ordre(db, programme_id, chant_id, payload.ordre)
     if not updated:
         raise HTTPException(status_code=404, detail="Association non trouvée")
@@ -55,8 +64,13 @@ def retirer_chant_du_programme(
     programme_id: int,
     chant_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
+    current_user: User = Depends(require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_musical)),
 ):
+    programme = programmes_service.get_programme_by_id(db, programme_id)
+    if not programme:
+        raise HTTPException(status_code=404, detail="Programme non trouvé")
+    verify_paroisse_access(current_user, programme.paroisse_id)
+
     removed = programme_chants_service.remove_chant_from_programme(db, programme_id, chant_id)
     if not removed:
         raise HTTPException(status_code=404, detail="Association non trouvée")

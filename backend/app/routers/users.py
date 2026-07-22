@@ -23,8 +23,13 @@ def liste_users(
 def creer_user(payload: UserCreate, db: Session = Depends(get_db)):
     try:
         return users_service.create_user(db, payload)
-    except ValueError:
-        raise HTTPException(status_code=409, detail="Cet email est déjà utilisé")
+    except ValueError as e:
+        code = str(e)
+        if code == "identifiant_deja_existant":
+            raise HTTPException(status_code=409, detail="Cet identifiant est déjà utilisé")
+        if code == "email_deja_existant":
+            raise HTTPException(status_code=409, detail="Cet email est déjà utilisé")
+        raise HTTPException(status_code=409, detail="Identifiant ou email déjà utilisé")
 
 
 @router.put("/{id}/role", response_model=UserOut, dependencies=[Depends(require_roles(RoleEnum.super_admin))])

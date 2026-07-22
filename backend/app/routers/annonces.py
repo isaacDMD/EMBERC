@@ -58,6 +58,8 @@ def modifier_annonce(
     if not existant:
         raise HTTPException(status_code=404, detail="Annonce non trouvée")
     verify_paroisse_access(current_user, existant.paroisse_id)
+    if payload.paroisse_id is not None:
+        verify_paroisse_access(current_user, payload.paroisse_id)
 
     try:
         return annonces_service.update_annonce(db, id, payload)

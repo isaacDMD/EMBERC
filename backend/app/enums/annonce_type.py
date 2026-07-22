@@ -9,4 +9,4 @@ class AnnonceType(enum.Enum):
     BAPTEME = "bapteme"
     CONFIRMATION = "confirmation"
     REUNION = "reunion"
-    ASSEMBLEE = "assembleé_générale"
+    ASSEMBLEE = "assemblée_générale"

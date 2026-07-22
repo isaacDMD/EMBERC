@@ -22,8 +22,13 @@ def create_user(db: Session, payload: UserCreate) -> User:
     db.add(user)
     try:
         db.commit()
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
+        message = str(getattr(e, "orig", e)).lower()
+        if "identifiant" in message:
+            raise ValueError("identifiant_deja_existant")
+        if "email" in message:
+            raise ValueError("email_deja_existant")
         raise ValueError("identifiant_ou_email_deja_existant")
     db.refresh(user)
     return user

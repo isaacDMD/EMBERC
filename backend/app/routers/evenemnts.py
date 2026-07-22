@@ -57,12 +57,13 @@ def modifier_evenement(
     if not existant:
         raise HTTPException(status_code=404, detail="Événement non trouvé")
     verify_paroisse_access(current_user, existant.paroisse_id)
+    if payload.paroisse_id is not None:
+        verify_paroisse_access(current_user, payload.paroisse_id)
 
     try:
         return evenements_service.update_evenement(db, id, payload)
     except ValueError:
         raise HTTPException(status_code=400, detail="Paroisse invalide")
-
 
 @router.delete("/{id}", status_code=204)
 def supprimer_evenement(

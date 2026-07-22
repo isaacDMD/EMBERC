@@ -23,9 +23,21 @@ def _creer_chant(client, headers, numero):
     )
 
 
-def test_ajouter_chant_au_programme(client, admin_paroisse_headers, resp_musical_token, paroisse):
+def _resp_musical_headers(client, make_user, paroisse, identifiant):
+    """resp_musical rattaché à la paroisse donnée (nécessaire depuis l'ajout de verify_paroisse_access)."""
+    make_user(
+        identifiant=identifiant,
+        role=RoleEnum.resp_musical,
+        paroisse_id=paroisse.id,
+        mot_de_passe="motdepasse123",
+    )
+    token = _login(client, identifiant, "motdepasse123")
+    return {"Authorization": f"Bearer {token}"}
+
+
+def test_ajouter_chant_au_programme(client, admin_paroisse_headers, make_user, paroisse):
     programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
-    resp_musical_headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    resp_musical_headers = _resp_musical_headers(client, make_user, paroisse, "resp_musical_pc_1")
     chant_id = _creer_chant(client, resp_musical_headers, "PC-001").json()["id"]
 
     response = client.post(
@@ -40,9 +52,9 @@ def test_ajouter_chant_au_programme(client, admin_paroisse_headers, resp_musical
     assert chants[0]["ordre"] == 1
 
 
-def test_liste_chants_programme_publique(client, admin_paroisse_headers, resp_musical_token, paroisse):
+def test_liste_chants_programme_publique(client, admin_paroisse_headers, make_user, paroisse):
     programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
-    resp_musical_headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    resp_musical_headers = _resp_musical_headers(client, make_user, paroisse, "resp_musical_pc_2")
     chant_id = _creer_chant(client, resp_musical_headers, "PC-002").json()["id"]
     client.post(
         f"/api/v1/programmes/{programme_id}/chants",
@@ -67,9 +79,9 @@ def test_ajouter_chant_programme_inexistant(client, resp_musical_token):
     assert response.status_code == 404
 
 
-def test_ajouter_chant_inexistant_au_programme(client, admin_paroisse_headers, resp_musical_token, paroisse):
+def test_ajouter_chant_inexistant_au_programme(client, admin_paroisse_headers, make_user, paroisse):
     programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
-    headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    headers = _resp_musical_headers(client, make_user, paroisse, "resp_musical_pc_3")
 
     response = client.post(
         f"/api/v1/programmes/{programme_id}/chants",
@@ -79,9 +91,30 @@ def test_ajouter_chant_inexistant_au_programme(client, admin_paroisse_headers, r
     assert response.status_code == 400
 
 
-def test_modifier_ordre_chant(client, admin_paroisse_headers, resp_musical_token, paroisse):
+def test_ajouter_chant_refuse_autre_paroisse(client, admin_paroisse_headers, make_user, paroisse, db):
+    """Un resp_musical d'une AUTRE paroisse ne doit pas pouvoir toucher ce programme."""
+    from app.models.paroisse import Paroisse
+
+    autre = Paroisse(nom="Autre Paroisse PC", actif=True)
+    db.add(autre)
+    db.commit()
+    db.refresh(autre)
+
     programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
-    headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    headers_autre = _resp_musical_headers(client, make_user, autre, "resp_musical_pc_autre")
+    chant_id = _creer_chant(client, headers_autre, "PC-008").json()["id"]
+
+    response = client.post(
+        f"/api/v1/programmes/{programme_id}/chants",
+        json={"chant_id": chant_id, "ordre": 1},
+        headers=headers_autre,
+    )
+    assert response.status_code == 403
+
+
+def test_modifier_ordre_chant(client, admin_paroisse_headers, make_user, paroisse):
+    programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
+    headers = _resp_musical_headers(client, make_user, paroisse, "resp_musical_pc_4")
     chant_id = _creer_chant(client, headers, "PC-004").json()["id"]
     client.post(
         f"/api/v1/programmes/{programme_id}/chants",
@@ -99,9 +132,9 @@ def test_modifier_ordre_chant(client, admin_paroisse_headers, resp_musical_token
     assert chants[0]["ordre"] == 5
 
 
-def test_modifier_ordre_association_inexistante(client, admin_paroisse_headers, resp_musical_token, paroisse):
+def test_modifier_ordre_association_inexistante(client, admin_paroisse_headers, make_user, paroisse):
     programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
-    headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    headers = _resp_musical_headers(client, make_user, paroisse, "resp_musical_pc_5")
     chant_id = _creer_chant(client, headers, "PC-005").json()["id"]
 
     response = client.put(
@@ -112,9 +145,9 @@ def test_modifier_ordre_association_inexistante(client, admin_paroisse_headers, 
     assert response.status_code == 404
 
 
-def test_retirer_chant_du_programme(client, admin_paroisse_headers, resp_musical_token, paroisse):
+def test_retirer_chant_du_programme(client, admin_paroisse_headers, make_user, paroisse):
     programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
-    headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    headers = _resp_musical_headers(client, make_user, paroisse, "resp_musical_pc_6")
     chant_id = _creer_chant(client, headers, "PC-006").json()["id"]
     client.post(
         f"/api/v1/programmes/{programme_id}/chants",
@@ -131,9 +164,9 @@ def test_retirer_chant_du_programme(client, admin_paroisse_headers, resp_musical
     assert get_resp.json() == []
 
 
-def test_retirer_chant_refuse_fidele(client, admin_paroisse_headers, resp_musical_token, make_user, paroisse):
+def test_retirer_chant_refuse_fidele(client, admin_paroisse_headers, make_user, paroisse):
     programme_id = _creer_programme(client, admin_paroisse_headers, paroisse.id).json()["id"]
-    resp_musical_headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    resp_musical_headers = _resp_musical_headers(client, make_user, paroisse, "resp_musical_pc_7")
     chant_id = _creer_chant(client, resp_musical_headers, "PC-007").json()["id"]
     client.post(
         f"/api/v1/programmes/{programme_id}/chants",

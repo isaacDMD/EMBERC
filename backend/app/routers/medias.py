@@ -94,6 +94,8 @@ def modifier_media(
     if not existant:
         raise HTTPException(status_code=404, detail="Média non trouvé")
     verify_paroisse_access(current_user, existant.paroisse_id)
+    if payload.paroisse_id is not None:
+        verify_paroisse_access(current_user, payload.paroisse_id)
 
     try:
         return medias_service.update_media(db, id, payload)

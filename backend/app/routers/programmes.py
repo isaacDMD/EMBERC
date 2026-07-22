@@ -57,6 +57,8 @@ def modifier_programme(
     if not existant:
         raise HTTPException(status_code=404, detail="Le programme que vous essayez de modifier n'existe pas")
     verify_paroisse_access(current_user, existant.paroisse_id)
+    if payload.paroisse_id is not None:
+        verify_paroisse_access(current_user, payload.paroisse_id)
 
     try:
         return programmes_service.update_programme(db, id, payload)
