@@ -66,6 +66,23 @@ def generate_presigned_upload_url(key: str, content_type: str, expires_in: int =
         },
         ExpiresIn=expires_in,
     )
+def generate_presigned_post(key: str, content_type: str, max_size_bytes: int, expires_in: int = 1200) -> dict:
+    """
+    Génère un POST présigné avec contrainte de taille (content-length-range).
+    Contrairement au PUT présigné, R2 rejette la requête si la taille dépasse
+    la limite avant que l'upload ne soit terminé, pas seulement à la confirmation.
+    """
+    client = _get_s3_client()
+    return client.generate_presigned_post(
+        Bucket=R2_BUCKET_NAME,
+        Key=key,
+        Fields={"Content-Type": content_type},
+        Conditions=[
+            {"Content-Type": content_type},
+            ["content-length-range", 1, max_size_bytes],
+        ],
+        ExpiresIn=expires_in,
+    )
 
 
 def build_public_url(key: str) -> str:

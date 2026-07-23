@@ -40,6 +40,7 @@ class ChantUploadRequest(BaseModel):
 class ChantUploadResponse(BaseModel):
     upload_url: str
     key: str
+    fields: dict
     expires_in: int
 
 class ChantConfirmUploadRequest(BaseModel):

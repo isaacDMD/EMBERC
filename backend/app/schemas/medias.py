@@ -45,9 +45,10 @@ class MediaUploadRequest(BaseModel):
     paroisse_id : int
 
 class MediaUploadResponse(BaseModel):
-    upload_url : str
+    upload_url: str
     key: str
-    expires_in : int
+    fields: dict
+    expires_in: int
 
 class MediaConfirmUploadRequest(BaseModel):
     key: str

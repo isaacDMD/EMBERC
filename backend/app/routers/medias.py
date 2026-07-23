@@ -28,9 +28,15 @@ def demander_url_upload(
         raise HTTPException(status_code=400, detail="Type de fichier non autorisé pour cette catégorie")
 
     key = storage.generate_object_key(f"medias/{categorie}", payload.nom_fichier)
-    upload_url = storage.generate_presigned_upload_url(key, payload.content_type, expires_in=1200)
+    limite = storage.MAX_SIZE_BYTES.get(categorie)
+    presigned = storage.generate_presigned_post(key, payload.content_type, limite, expires_in=1200)
 
-    return MediaUploadResponse(upload_url=upload_url, key=key, expires_in=1200)
+    return MediaUploadResponse(
+        upload_url=presigned["url"],
+        key=key,
+        fields=presigned["fields"],
+        expires_in=1200,
+    )
 
 @router.post("/confirm-upload", response_model=MediaConfirmUploadResponse)
 def confirmer_upload(
