@@ -6,17 +6,27 @@ from app.schemas.users import UserCreate, UserOut, UserUpdateRole
 from app.services import users_service
 from app.auth.permissions import require_roles
 from app.enums.roles import RoleEnum
+from app.models.user import User
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
 
-@router.get("", response_model=list[UserOut], dependencies=[Depends(require_roles(RoleEnum.super_admin))])
+@router.get("", response_model=list[UserOut])
 def liste_users(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_roles(RoleEnum.super_admin, RoleEnum.admin_paroisse, RoleEnum.resp_lecteurs)
+    ),
 ):
-    return users_service.get_users(db, page, limit)
+    """
+    super_admin voit tous les utilisateurs.
+    admin_paroisse / resp_lecteurs ne voient QUE les utilisateurs de leur propre paroisse
+    (utile pour choisir un lecteur à assigner) — jamais une autre paroisse, jamais paramétrable.
+    """
+    paroisse_id = None if current_user.role == RoleEnum.super_admin else current_user.paroisse_id
+    return users_service.get_users(db, page, limit, paroisse_id)
 
 
 @router.post("", response_model=UserOut, status_code=201, dependencies=[Depends(require_roles(RoleEnum.super_admin))])

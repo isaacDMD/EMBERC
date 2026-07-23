@@ -42,10 +42,16 @@ def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
     return db.scalars(select(User).where(User.id == user_id)).first()
 
 
-def get_users(db: Session, page: int = 1, limit: int = 20) -> list[User]:
-    return db.scalars(
-        select(User).offset((page - 1) * limit).limit(limit)
-    ).all()
+def get_users(
+    db: Session,
+    page: int = 1,
+    limit: int = 20,
+    paroisse_id: Optional[int] = None,
+) -> list[User]:
+    stmt = select(User)
+    if paroisse_id is not None:
+        stmt = stmt.where(User.paroisse_id == paroisse_id)
+    return db.scalars(stmt.offset((page - 1) * limit).limit(limit)).all()
 
 
 def update_role(db: Session, user_id: int, new_role) -> Optional[User]:

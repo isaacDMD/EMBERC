@@ -104,3 +104,33 @@ def test_modifier_role_refuse_admin_paroisse(client, admin_paroisse_headers, mak
         headers=admin_paroisse_headers,
     )
     assert response.status_code == 403
+
+def test_liste_users_admin_paroisse_filtre_sa_paroisse(client, admin_paroisse_headers, paroisse, make_user, db):
+    from app.models.paroisse import Paroisse
+
+    autre = Paroisse(nom="Autre Paroisse Users", actif=True)
+    db.add(autre)
+    db.commit()
+    db.refresh(autre)
+
+    make_user(identifiant="user_meme_paroisse", paroisse_id=paroisse.id)
+    make_user(identifiant="user_autre_paroisse", paroisse_id=autre.id)
+
+    response = client.get("/api/v1/users", headers=admin_paroisse_headers)
+    assert response.status_code == 200
+    identifiants = [u["identifiant"] for u in response.json()]
+    assert "user_meme_paroisse" in identifiants
+    assert "user_autre_paroisse" not in identifiants
+
+
+def test_liste_users_resp_lecteurs_autorise(client, make_user, paroisse):
+    make_user(
+        identifiant="resp_lecteurs_users",
+        role=RoleEnum.resp_lecteurs,
+        paroisse_id=paroisse.id,
+        mot_de_passe="motdepasse123",
+    )
+    token = _login(client, "resp_lecteurs_users", "motdepasse123")
+
+    response = client.get("/api/v1/users", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
