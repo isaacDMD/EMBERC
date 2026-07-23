@@ -66,6 +66,12 @@ const sections = [
     href: '/admin/actualites',
     roles: ['super_admin', 'admin_paroisse'],
   },
+  {
+    titre: 'Lectures bibliques',
+    description: 'Programmer les lectures et assigner des lecteurs par langue.',
+    href: '/admin/lectures',
+    roles: ['super_admin', 'admin_paroisse', 'resp_lecteurs'],
+  },
 ]
 
 const sectionsVisibles = computed(() =>
