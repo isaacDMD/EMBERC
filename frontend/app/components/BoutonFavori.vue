@@ -1,15 +1,17 @@
 <template>
-  <button
-    v-if="auth.estConnecte"
-    type="button"
-    class="inline-flex items-center gap-1 text-sm transition"
-    :class="estActif ? 'text-accent-dark' : 'text-muted hover:text-accent-dark'"
-    :disabled="enCours"
-    @click.stop.prevent="basculer"
-  >
-    <span>{{ estActif ? '★' : '☆' }}</span>
-    <span v-if="avecLabel">{{ estActif ? 'Favori' : 'Ajouter aux favoris' }}</span>
-  </button>
+  <ClientOnly>
+    <button
+      v-if="auth.estConnecte"
+      type="button"
+      class="inline-flex items-center gap-1 text-sm transition"
+      :class="estActif ? 'text-accent-dark' : 'text-muted hover:text-accent-dark'"
+      :disabled="enCours"
+      @click.stop.prevent="basculer"
+    >
+      <span>{{ estActif ? '★' : '☆' }}</span>
+      <span v-if="avecLabel">{{ estActif ? 'Favori' : 'Ajouter aux favoris' }}</span>
+    </button>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
