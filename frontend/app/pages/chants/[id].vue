@@ -12,7 +12,6 @@
       <p class="section-label mb-2">N° {{ chant.numero }}</p>
       <h1 class="font-display text-3xl font-semibold mb-2">{{ chant.titre }}</h1>
       <p v-if="chant.auteur" class="text-muted mb-6">{{ chant.auteur }}</p>
-      <p>TEST BOUTON : {{ auth.estConnecte }}</p>
       <BoutonFavori type="chant" :item-id="chant.id" avec-label />
 
       <audio
