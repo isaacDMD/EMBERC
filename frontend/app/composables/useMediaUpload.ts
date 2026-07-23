@@ -4,25 +4,29 @@ export function useMediaUpload() {
   const { request } = useApi()
 
   async function uploaderFichier(fichier: File, categorie: CategorieMedia, paroisseId: number): Promise<string> {
-    const { upload_url, key } = await request<{ upload_url: string; key: string }>(
-      '/medias/upload-url',
-      {
-        method: 'POST',
-        body: {
-          nom_fichier: fichier.name,
-          content_type: fichier.type,
-          type_media: categorie,
-          paroisse_id: paroisseId,
-        },
-      }
-    )
-
-    const putResponse = await fetch(upload_url, {
-      method: 'PUT',
-      body: fichier,
-      headers: { 'Content-Type': fichier.type },
+    const { upload_url, key, fields } = await request<{
+      upload_url: string
+      key: string
+      fields: Record<string, string>
+    }>('/medias/upload-url', {
+      method: 'POST',
+      body: {
+        nom_fichier: fichier.name,
+        content_type: fichier.type,
+        type_media: categorie,
+        paroisse_id: paroisseId,
+      },
     })
-    if (!putResponse.ok) {
+
+    const formData = new FormData()
+    Object.entries(fields).forEach(([champ, valeur]) => formData.append(champ, valeur))
+    formData.append('file', fichier)
+
+    const uploadResponse = await fetch(upload_url, {
+      method: 'POST',
+      body: formData,
+    })
+    if (!uploadResponse.ok) {
       throw new Error("L'envoi du fichier a échoué")
     }
 

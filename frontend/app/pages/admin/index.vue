@@ -38,9 +38,9 @@ const sections = [
   },
   {
     titre: 'Programmes',
-    description: 'Créer et publier les programmes de culte.',
+    description: 'Créer et publier les programmes de culte, ou y ajouter des chants.',
     href: '/admin/programmes',
-    roles: ['super_admin', 'admin_paroisse'],
+    roles: ['super_admin', 'admin_paroisse', 'resp_musical'],
   },
   {
     titre: 'Annonces',
@@ -66,12 +66,6 @@ const sections = [
     href: '/admin/actualites',
     roles: ['super_admin', 'admin_paroisse'],
   },
-  {
-  titre: 'Programmes',
-  description: 'Créer et publier les programmes de culte, ou y ajouter des chants.',
-  href: '/admin/programmes',
-  roles: ['super_admin', 'admin_paroisse', 'resp_musical'],
-},
 ]
 
 const sectionsVisibles = computed(() =>

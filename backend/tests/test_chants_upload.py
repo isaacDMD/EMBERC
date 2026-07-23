@@ -91,3 +91,57 @@ def test_upload_chant_refuse_sans_token(client):
         json={"nom_fichier": "test.mp3", "content_type": "audio/mpeg"},
     )
     assert resp.status_code == 401
+
+@pytest.mark.integration
+def test_upload_chant_bout_en_bout(client, resp_musical_token):
+    headers = {"Authorization": f"Bearer {resp_musical_token}"}
+    nom_fichier = f"test_{uuid.uuid4().hex[:8]}.mp3"
+
+    resp = client.post(
+        "/api/v1/chants/upload-url",
+        json={"nom_fichier": nom_fichier, "content_type": "audio/mpeg"},
+        headers=headers,
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    upload_url, key, fields = data["upload_url"], data["key"], data["fields"]
+
+    try:
+        # Upload réel vers R2 via POST multipart (presigned POST + content-length-range)
+        put_resp = httpx.post(
+            upload_url,
+            data=fields,
+            files={"file": (nom_fichier, _petit_fichier_audio_test(), "audio/mpeg")},
+            timeout=30,
+        )
+        assert put_resp.status_code in (200, 201, 204), put_resp.text
+
+        confirm_resp = client.post(
+            "/api/v1/chants/confirm-upload",
+            json={"key": key},
+            headers=headers,
+        )
+        assert confirm_resp.status_code == 200, confirm_resp.text
+        confirm_data = confirm_resp.json()
+        assert confirm_data["taille_octets"] > 0
+        fichier_audio_url = confirm_data["fichier_audio_url"]
+
+        creer_resp = client.post(
+            "/api/v1/chants",
+            json={
+                "numero": f"TEST-{uuid.uuid4().hex[:6]}",
+                "titre": "Chant de test upload",
+                "fichier_audio_url": fichier_audio_url,
+            },
+            headers=headers,
+        )
+        assert creer_resp.status_code == 201, creer_resp.text
+        chant = creer_resp.json()
+        assert chant["fichier_audio_url"] == fichier_audio_url
+
+        get_resp = client.get(f"/api/v1/chants/{chant['id']}")
+        assert get_resp.status_code == 200
+        assert get_resp.json()["fichier_audio_url"] == fichier_audio_url
+
+    finally:
+        storage.delete_object(key)
