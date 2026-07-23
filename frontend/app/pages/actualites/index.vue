@@ -32,6 +32,7 @@
           <p class="section-label">{{ formaterDate(actu.created_at) }}</p>
           <h2 class="font-display text-lg font-semibold">{{ actu.titre }}</h2>
           <p v-if="actu.resume" class="text-sm text-muted leading-relaxed">{{ actu.resume }}</p>
+          <BoutonFavori type="article" :item-id="actu.id" />
         </div>
       </NuxtLink>
     </div>

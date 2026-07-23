@@ -68,6 +68,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       useCookie('emberc_access_token').value = null
       useCookie('emberc_refresh_token').value = null
+      resetFavoris()
       navigateTo('/connexion')
     },
   },

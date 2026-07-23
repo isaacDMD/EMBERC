@@ -23,6 +23,7 @@
           <NuxtLink to="/evenements" class="hover:text-primary">Événements</NuxtLink>
           <NuxtLink to="/medias" class="hover:text-primary">Médias</NuxtLink>
           <NuxtLink to="/actualites" class="hover:text-primary">Actualités</NuxtLink>
+          <NuxtLink v-if="auth.estConnecte" to="/favoris" class="hover:text-primary">Mes favoris</NuxtLink>
           <template v-if="auth.estConnecte">
             <span class="text-muted">{{ auth.user?.prenom }}</span>
             <button class="text-primary font-medium" @click="auth.logout()">Déconnexion</button>
@@ -38,6 +39,7 @@
         <NuxtLink to="/evenements" @click="menuOuvert = false">Événements</NuxtLink>
         <NuxtLink to="/medias" @click="menuOuvert = false">Médias</NuxtLink>
         <NuxtLink to="/actualites" @click="menuOuvert = false">Actualités</NuxtLink>
+        <NuxtLink v-if="auth.estConnecte" to="/favoris" @click="menuOuvert = false">Mes favoris</NuxtLink>
         <NuxtLink v-if="estAdmin" to="/admin" class="hover:text-primary font-medium">Administration</NuxtLink>
         <template v-if="auth.estConnecte">
           <span class="text-muted">{{ auth.user?.prenom }}</span>

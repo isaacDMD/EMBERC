@@ -46,6 +46,7 @@
         </div>
 
         <p v-if="chant.auteur" class="text-sm text-muted">{{ chant.auteur }}</p>
+        <BoutonFavori type="chant" :item-id="chant.id" avec-label />
 
         <audio
           v-if="chant.fichier_audio_url"

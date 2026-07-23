@@ -11,6 +11,7 @@
     <article v-else-if="actualite">
       <p class="section-label mb-2">{{ formaterDate(actualite.created_at) }}</p>
       <h1 class="font-display text-3xl font-semibold mb-6">{{ actualite.titre }}</h1>
+      <BoutonFavori type="article" :item-id="actualite.id" avec-label />
 
       <img
         v-if="actualite.image_url"

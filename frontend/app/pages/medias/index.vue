@@ -53,6 +53,7 @@
             {{ libelleType(media.type_media) }}
           </span>
           <h2 class="font-display text-lg font-semibold">{{ media.titre }}</h2>
+          <BoutonFavori type="media" :item-id="media.id" />
           <p v-if="media.description" class="text-sm text-muted">{{ media.description }}</p>
 
           <audio

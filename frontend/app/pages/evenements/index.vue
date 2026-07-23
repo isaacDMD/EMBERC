@@ -32,6 +32,7 @@
             {{ formaterPeriode(evenement.date_debut, evenement.date_fin) }}
           </p>
           <h2 class="font-display text-lg font-semibold">{{ evenement.titre }}</h2>
+          <BoutonFavori type="evenement" :item-id="evenement.id" />
           <p v-if="evenement.lieu" class="text-sm text-muted">📍 {{ evenement.lieu }}</p>
           <p v-if="evenement.description" class="text-sm leading-relaxed mt-1">
             {{ evenement.description }}

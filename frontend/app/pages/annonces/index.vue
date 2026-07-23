@@ -35,6 +35,7 @@
         <p class="text-sm text-muted mb-3">
           Du {{ formaterDate(annonce.date_debut) }} au {{ formaterDate(annonce.date_fin) }}
         </p>
+        <BoutonFavori type="annonce" :item-id="annonce.id" />
 
         <p class="whitespace-pre-line leading-relaxed">{{ annonce.contenu }}</p>
       </article>
